@@ -6,5 +6,5 @@ class Agent:
         self.manpower = manpower
         self.actionSet = actionSet
     
-    def decideAction(self):
-        return np.random.choice(self.actionSet)
+    def decideAction(self, actionSet):
+        return np.random.choice(actionSet)
