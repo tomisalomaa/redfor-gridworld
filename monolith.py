@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from agent import Agent
+from q_agent import QAgent
 
 class Environment:
     def __init__(self, height=10, width=10):
@@ -68,37 +70,6 @@ class Environment:
         if self.agentLocation in self.terminalStates:
             return "terminal"
 
-class StochasticAgent():
-    def decideAction(self, actionSet):
-        return np.random.choice(actionSet)
-
-class QAgent():
-    def __init__(self, environment, epsilon=0.01, alpha=0.1, gamma=1):
-        self.environment = environment
-        self.Qtable = dict()
-        for x in range(environment.height):
-            for y in range(environment.width):
-                self.Qtable[(x,y)] = {"UP":0, "RIGHT":0, "DOWN":0, "LEFT":0, "ATTACK":0}
-                self.epsilon = epsilon
-                self.alpha = alpha
-                self.gamma = gamma
-    
-    def decideAction(self, actionSet):
-        if np.random.uniform(0,1) < self.epsilon:
-            a = actionSet[np.random.randint(0, len(actionSet))]
-        else:
-            QValues = self.Qtable[self.environment.agentLocation]
-            greedyValue = max(QValues.values())
-            possibleActions = [k for k,v in QValues.items() if v == greedyValue]
-            a = np.random.choice(possibleActions)
-        return a
-
-    def updateQtable(self, oldState, reward, deltaState, action):
-        QValues = self.Qtable[deltaState]
-        maxQinDelta = max(QValues.values())
-        presentQvalues = self.Qtable[oldState][action]
-        self.Qtable[oldState][action] = (1-self.alpha)*presentQvalues+self.alpha*(reward+self.gamma*maxQinDelta)
-
 def run(environment, agent, episodes=1000, maxSteps=1000, learn=False):
     rewardLog = []
     iteration = 1
@@ -123,10 +94,10 @@ def run(environment, agent, episodes=1000, maxSteps=1000, learn=False):
         iteration += 1
     return rewardLog
 
-#env = Environment()
-#agent = StochasticAgent()
-#Qagent = QAgent(env)
-#rewardsAchieved = run(env, agent, 5000)
-#rewardsAchieved = run(env, Qagent, 5000, learn=True)
+env = Environment()
+#agent = Agent()
+qAgent = QAgent(env, env.actionSet)
+#rewardsAchieved = run(env, agent, 100)
+rewardsAchieved = run(env, qAgent, 10, learn=True)
 #plt.plot(rewardsAchieved)
 #plt.show()
