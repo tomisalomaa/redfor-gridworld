@@ -19,14 +19,14 @@ class Agent:
             cumulativeReward = 0
             step = 0
             terminate = False
-            while step < self.maxSteps and not terminate:
+            while not terminate:
                 oldState = self.environment.agentLocation
                 a = self.decideAction()
                 reward = self.environment.step(a)
                 deltaState = self.environment.agentLocation
                 cumulativeReward += reward
                 step += 1
-                if self.environment.checkState() == "terminal":
+                if self.environment.checkState() == "terminal" or step >= self.maxSteps:
                     self.environment.__init__()
                     terminate = True
             rewardLog.append(cumulativeReward)
