@@ -1,24 +1,26 @@
 import numpy as np
 
 class QAgent:
-    def __init__(self, environment, actionSet, manpower=300, epsilon=0.01, alpha=0.1, gamma=1):
+    def __init__(self, environment, manpower=300, episodes=1000, maxSteps=1000, epsilon=0.01, alpha=0.1, gamma=1):
         self.environment = environment
-        self.actionSet = actionSet
+        self.actionSet = self.environment.actionSet
         self.manpower = manpower
+        self.episodes = episodes
+        self.maxSteps = maxSteps
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.gamma = gamma
         self.Qtable = dict()
         self.QtableInitKeyValues = dict()
-        for a in actionSet:
+        for a in self.actionSet:
             self.QtableInitKeyValues[a] = 0
         for x in range(environment.height):
             for y in range(environment.width):
                 self.Qtable[(x,y)] = self.QtableInitKeyValues
-                self.epsilon = epsilon
-                self.alpha = alpha
-                self.gamma = gamma
     
-    def decideAction(self, actionSet):
+    def decideAction(self):
         if np.random.uniform(0,1) < self.epsilon:
-            a = actionSet[np.random.randint(0, len(actionSet))]
+            a = self.actionSet[np.random.randint(0, len(self.actionSet))]
         else:
             QValues = self.Qtable[self.environment.agentLocation]
             greedyValue = max(QValues.values())
@@ -31,3 +33,26 @@ class QAgent:
         maxQinDelta = max(QValues.values())
         presentQvalues = self.Qtable[oldState][action]
         self.Qtable[oldState][action] = (1-self.alpha)*presentQvalues+self.alpha*(reward+self.gamma*maxQinDelta)
+
+    def run(self):
+        rewardLog = []
+        iteration = 1
+        for episode in range(self.episodes):
+            cumulativeReward = 0
+            step = 0
+            terminate = False
+            while step < self.maxSteps and not terminate:
+                oldState = self.environment.agentLocation
+                a = self.decideAction()
+                reward = self.environment.step(a)
+                deltaState = self.environment.agentLocation
+                self.updateQtable(oldState, reward, deltaState, a)
+                cumulativeReward += reward
+                step += 1
+                if self.environment.checkState() == "terminal":
+                    self.environment.__init__()
+                    terminate = True
+            rewardLog.append(cumulativeReward)
+            print("Episode", iteration, ":", cumulativeReward)
+            iteration += 1
+        return rewardLog
