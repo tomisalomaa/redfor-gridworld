@@ -10,17 +10,18 @@ class QAgent:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
+
         self.Qtable = dict()
-        self.QtableInitKeyValues = dict()
-        for a in self.actionSet:
-            self.QtableInitKeyValues[a] = 0
+
         for x in range(environment.height):
             for y in range(environment.width):
-                self.Qtable[(x,y)] = self.QtableInitKeyValues
+                self.Qtable[(x,y)] = {}
+                for a in self.actionSet:
+                    self.Qtable[(x,y)][a] = 0
     
     def decideAction(self):
-        if np.random.uniform(0,1) < self.epsilon:
-            a = self.actionSet[np.random.randint(0, len(self.actionSet))]
+        if np.random.uniform(low=0, high=1) < self.epsilon:
+            a = np.random.choice(self.actionSet)
         else:
             QValues = self.Qtable[self.environment.agentLocation]
             greedyValue = max(QValues.values())
