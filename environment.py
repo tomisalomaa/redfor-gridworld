@@ -7,7 +7,7 @@ class Environment:
         self.width = width
         self.show = show
         # init grid with zeros
-        self.grid = np.zeros((self.height, self.width))
+        self.grid = np.full((self.height, self.width),-1,dtype=float)
         # set redfor agent start location
         self.agentLocation = (9, np.random.randint(0,9))
         # set bluefor starting location(s)
