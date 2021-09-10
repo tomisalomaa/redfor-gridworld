@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from agent import Agent as RandomAgent
-from q_agent import QAgent as QAgent
-from mc_agent import FirstVisitMCAgent as MCAgentFirstVisit
 from environment import Environment
+from agent import Agent as RandomAgent
+from temporal_learning_agent import QAgent as QAgent, SARSAAgent as SarsaAgent
+from mc_agent import FirstVisitMCAgent as MCAgentFirstVisit
 
 class Window:
     def __init__(self,root):
@@ -97,8 +97,9 @@ class Window:
                             maxSteps=steps, epsilon=epsilon, 
                             alpha=alpha, gamma=gamma)
         elif agentType == "SARSA":
-            print("Not yet implemented")
-            return 0
+            agent = SarsaAgent(environment=env, episodes=episodes, 
+                                maxSteps=steps, epsilon=epsilon, 
+                                alpha=alpha, gamma=gamma)
         else:
             print("No agent type selected!")
             return 0
