@@ -31,9 +31,8 @@ class TDAgent:
         if np.random.uniform(low=0, high=1) < self.epsilon:
             a = np.random.choice(self.actionSet)
         else:
-            QValues = self.Qtable[self.environment.agentLocation]
-            greedyValue = max(QValues.values())
-            possibleActions = [k for k,v in QValues.items() if v == greedyValue]
+            greedyValue = max(self.Qtable[self.environment.agentLocation].values())
+            possibleActions = [k for k,v in self.Qtable[self.environment.agentLocation].items() if v == greedyValue]
             a = np.random.choice(possibleActions)
         return a
 

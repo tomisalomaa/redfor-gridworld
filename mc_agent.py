@@ -1,6 +1,6 @@
 import numpy as np
 
-class FirstVisitMCAgent:
+class MCAgent:
     def __init__(self, environment, manpower=300, episodes=1000, maxSteps=1000, epsilon=0.05, alpha=0.1, gamma=1):
         self.environment = environment
         self.actionSet = self.environment.actionSet
@@ -25,6 +25,13 @@ class FirstVisitMCAgent:
                     self.actionStateVisits[(x,y)][a] = 0
                     self.actionStateRewards[(x,y)][a] = 0
 
+    # Choosing an action:
+    # Compare a random float between 0 and 1 to the epsilon.
+    # If lower than epsilon, pick a random action from the action set
+    # to explore possibilities. Otherwise choose the current best
+    # performing action from the statewise action pool.
+    # If current policy has multiple best choices, choose at random
+    # between said choices.
     def decideAction(self):
         if np.random.uniform(low=0,high=1) < self.epsilon:
             a = np.random.choice(self.actionSet)
@@ -33,20 +40,6 @@ class FirstVisitMCAgent:
             greedyActions = [k for k,v in self.actionStateValues[self.environment.agentLocation].items() if v == greedyValue]
             a = np.random.choice(greedyActions)
         return a
-
-    def predictEpisode(self, episodeSAR):
-        uniqueStateVisits = []
-        for idx, sar in enumerate(episodeSAR):
-            if (sar[0],sar[1]) in uniqueStateVisits:
-                continue
-            else:
-                g = 0
-                for i in range(idx, len(episodeSAR)):
-                    g += episodeSAR[i][2]
-                uniqueStateVisits.append((sar[0],sar[1]))
-                self.actionStateVisits[sar[0]][sar[1]] += 1
-                self.actionStateRewards[sar[0]][sar[1]] += g
-                self.actionStateValues[sar[0]][sar[1]] = self.actionStateRewards[sar[0]][sar[1]] / self.actionStateVisits[sar[0]][sar[1]]
 
     def run(self):
         rewardLog = []
@@ -72,3 +65,34 @@ class FirstVisitMCAgent:
                 print("Episode", iteration, ":", cumulativeReward)
             iteration += 1
         return rewardLog
+
+class FirstVisitMCAgent(MCAgent):
+    def predictEpisode(self, episodeSAR):
+        uniqueStateVisits = []
+        for idx, sar in enumerate(episodeSAR):
+            if (sar[0],sar[1]) in uniqueStateVisits:
+                continue
+            else:
+                g = 0
+                for i in range(idx, len(episodeSAR)):
+                    g += episodeSAR[i][2]
+                uniqueStateVisits.append((sar[0],sar[1]))
+                self.actionStateVisits[sar[0]][sar[1]] += 1
+                self.actionStateRewards[sar[0]][sar[1]] += g
+                self.actionStateValues[sar[0]][sar[1]] = self.actionStateRewards[sar[0]][sar[1]] / self.actionStateVisits[sar[0]][sar[1]]
+
+class EveryVisitMCAgent(MCAgent):
+    def predictEpisode(self, episodeSAR):
+        uniqueStateVisits = []
+        for idx, sar in enumerate(episodeSAR):
+            if (sar[0],sar[1]) in uniqueStateVisits:
+                self.actionStateVisits[sar[0]][sar[1]] += 1
+                continue
+            else:
+                g = 0
+                for i in range(idx, len(episodeSAR)):
+                    g += episodeSAR[i][2]
+                uniqueStateVisits.append((sar[0],sar[1]))
+                self.actionStateVisits[sar[0]][sar[1]] += 1
+                self.actionStateRewards[sar[0]][sar[1]] += g
+                self.actionStateValues[sar[0]][sar[1]] = self.actionStateRewards[sar[0]][sar[1]] / self.actionStateVisits[sar[0]][sar[1]]
