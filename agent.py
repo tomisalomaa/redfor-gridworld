@@ -1,6 +1,6 @@
 import numpy as np
 
-# Base class for agents. Acts as a purely stochastic agent on its own.
+# Base class for agents. Acts as a purely stochastic agent.
 class Agent:
     def __init__(self, environment, manpower=300, episodes=1000, maxSteps=1000):
         self.environment = environment
