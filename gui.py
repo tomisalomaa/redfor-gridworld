@@ -1,9 +1,10 @@
 import tkinter as tk
+import numpy as np
 from tkinter import ttk
 from environment import Environment
 from agent import Agent as RandomAgent
 from temporal_learning_agent import QAgent as QAgent, SARSAAgent as SarsaAgent
-from mc_agent import FirstVisitMCAgent as MCAgentFirstVisit
+from mc_agent import FirstVisitMCAgent as FVAgent, EveryVisitMCAgent as EVAgent
 
 class Window:
     def __init__(self,root):
@@ -58,13 +59,11 @@ class Window:
         agentVariable = tk.StringVar(self.root)
         agentDropDown = ttk.OptionMenu(self.root,
                                         agentVariable,
-                                        *agents).grid(
-                                                    column=1,
-                                                    row=5, 
-                                                    sticky=tk.W)
+                                        *agents)
+        agentDropDown.grid(column=1,row=5,sticky=tk.W)
 
         runButton = ttk.Button(self.root, text="Run", 
-                                command=lambda: self.runAgent(
+                                command=lambda: self.getResultFromRun(
                                     int(episodeEntry.get()),
                                     int(stepsEntry.get()),
                                     float(epsilonEntry.get()),
@@ -73,7 +72,20 @@ class Window:
                                     agentVariable.get()
                                 ))
         runButton.grid(column=0, row=6)
+
+        self.runResults = []
+        self.resultsVar = tk.StringVar(value=self.runResults)
+        self.resultsList = tk.Listbox(self.root, width=40, listvariable=self.resultsVar)
+        self.resultsList.grid(column=2,row=0,rowspan=5, sticky=tk.W)
         
+    def getResultFromRun(self, episodes, steps, epsilon, alpha, gamma, agentType):
+        rewardResult = self.runAgent(episodes, steps, epsilon, alpha, gamma, agentType)
+        self.runResults.append(str(agentType)+" "+str(episodes)+" episode avg: "+str(np.mean(rewardResult)))
+        print("RUN RESULTS LIST:",self.runResults)
+        self.resultsList.delete(0, tk.END)
+        for result in self.runResults:
+            self.resultsList.insert(0, result)
+
     def runAgent(self, episodes, steps, epsilon, alpha, gamma, agentType):
         env = Environment()
         if agentType == "Random":
@@ -84,12 +96,15 @@ class Window:
         elif agentType == "MC first visit":
             #DEBUG
             print("MCFV AGENT")
-            agent = MCAgentFirstVisit(environment=env, episodes=episodes, 
+            agent = FVAgent(environment=env, episodes=episodes, 
                                         maxSteps=steps, epsilon=epsilon, 
                                         alpha=alpha, gamma=gamma)
         elif agentType == "MC every visit":
-            print("Not yet implemented")
-            return 0
+            #DEBUG
+            print("MCEV AGENT")
+            agent = FVAgent(environment=env, episodes=episodes, 
+                                        maxSteps=steps, epsilon=epsilon, 
+                                        alpha=alpha, gamma=gamma)
         elif agentType == "Q-learning":
             #DEBUG
             print("Q-LEARNING AGENT")
@@ -104,13 +119,13 @@ class Window:
             print("No agent type selected!")
             return 0
         #DEBUG
-        print("AGENT WITH PARAMS:")
-        print("     episodes:",episodes)
-        print("     steps:",steps)
-        print("     epsilon:",epsilon)
-        print("     alpha:",alpha)
-        print("     gamma:",gamma)
-        print("     agent type:",agentType)
+        # print("AGENT WITH PARAMS:")
+        # print("     episodes:",episodes)
+        # print("     steps:",steps)
+        # print("     epsilon:",epsilon)
+        # print("     alpha:",alpha)
+        # print("     gamma:",gamma)
+        # print("     agent type:",agentType)
         print("RUNNING AGENT...")
         rewardsAchieved = agent.run()
         return rewardsAchieved
