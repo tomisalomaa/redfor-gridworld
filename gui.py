@@ -107,7 +107,7 @@ class Window:
         episodes = self.episodeStatesArray
         for idx,arr in enumerate(episodes):
             for matrix in arr:
-                if idx==0 or idx+1%episodeArrModulus == 0 or idx == len(episodes)-1:
+                if idx==0 or idx%episodeArrModulus == 0 or idx == len(episodes)-1:
                     self.imgCanvas.delete("all")
                     self.stepAndEpisodeLabel["text"]="Episode: "+str(idx+1)
                     for x in range(len(matrix)):
