@@ -1,5 +1,7 @@
 import tkinter as tk
 import numpy as np
+import time
+import threading
 from tkinter import ttk
 from environment import Environment
 from agent import Agent as RandomAgent
@@ -17,6 +19,7 @@ class Window:
         self.root.columnconfigure(1, weight=1)
         self.root.columnconfigure(2, weight=10)
         
+        self.createdThreads = []
         agents = ["Choose agent", 
                     "Random", 
                     "MC first visit", 
@@ -75,39 +78,75 @@ class Window:
 
         self.runResults = []
         self.resultsVar = tk.StringVar(value=self.runResults)
-        self.resultsList = tk.Listbox(self.root, width=40, listvariable=self.resultsVar)
-        self.resultsList.grid(column=2,row=0,rowspan=5, sticky=tk.W)
+        self.resultsList = tk.Listbox(self.root, height=4, width=40, listvariable=self.resultsVar)
+        self.resultsList.grid(column=2,row=0,rowspan=4, sticky=tk.W)
+        
+        self.imgCanvas = tk.Canvas(self.root, height=260, width=260, bg="white")
+        self.imgCanvas.grid(column=2,row=4,rowspan=4,sticky=tk.W)
+        self.episodeStatesArray = []
+        self.stepAndEpisodeLabel = ttk.Label(self.root)
+        self.stepAndEpisodeLabel.grid(column=2,row=8,rowspan=4,sticky=tk.W)
+
+        simulateResultsButton = ttk.Button(self.root, text="Simulate", command=lambda: self.startNewThread(self.drawGridCanvas))
+        simulateResultsButton.grid(column=0,row=7)
+
+    def startNewThread(self, targetFunction):
+        gridDrawThread = threading.Thread(target=self.drawGridCanvas)
+        self.createdThreads.append(gridDrawThread)
+        gridDrawThread.start()
+        for thread in self.createdThreads:
+            if not thread.is_alive():
+                print("Closing",thread,"down..")
+                thread.join()
+                # TODO: Do stopped threads need attention (kill, remove?)
+
+    # Current notes:
+    # Last arr is a no-use array (doesnt contain an actual playthrough but is an end state with no redfor instead),
+    # actual episode number needs to be contained with the episode sample arrays to tie it in the simulation.
+    def drawGridCanvas(self, episodeArrModulus=10):
+        episodes = self.episodeStatesArray
+        for idx,arr in enumerate(episodes):
+            for matrix in arr:
+                if idx==0 or idx+1%episodeArrModulus == 0 or idx == len(episodes)-1:
+                    self.imgCanvas.delete("all")
+                    self.stepAndEpisodeLabel["text"]="Episode: "+str(idx+1)
+                    for x in range(len(matrix)):
+                        for y in range(len(matrix[x])):
+                            if matrix[x][y] == 1:
+                                rectColor = "red"
+                            elif matrix[x][y] == 2:
+                                rectColor = "blue"
+                            elif matrix[x][y] == 3:
+                                rectColor = "grey"
+                            else:
+                                 rectColor = "white"
+                            self.imgCanvas.create_rectangle(x*25+5,y*25+5,(x+1)*25+5,(y+1)*25+5, fill=rectColor)
+                    timeoutStart = time.time()
+                    while time.time() < timeoutStart+0.05:
+                        pass
         
     def getResultFromRun(self, episodes, steps, epsilon, alpha, gamma, agentType):
-        rewardResult = self.runAgent(episodes, steps, epsilon, alpha, gamma, agentType)
-        self.runResults.append(str(agentType)+" "+str(episodes)+" episode avg: "+str(np.mean(rewardResult)))
-        print("RUN RESULTS LIST:",self.runResults)
+        returns = self.runAgent(episodes, steps, epsilon, alpha, gamma, agentType)
+        self.runResults.append(str(agentType)+" "+str(episodes)+" episode avg: "+str(np.mean(returns[0])))
         self.resultsList.delete(0, tk.END)
         for result in self.runResults:
             self.resultsList.insert(0, result)
+        self.episodeStatesArray = returns[1]
 
     def runAgent(self, episodes, steps, epsilon, alpha, gamma, agentType):
         env = Environment()
         if agentType == "Random":
-            #DEBUG
-            print("RANDOM AGENT")
             agent = RandomAgent(environment=env, episodes=episodes, 
                                 maxSteps=steps)
         elif agentType == "MC first visit":
-            #DEBUG
-            print("MCFV AGENT")
             agent = FVAgent(environment=env, episodes=episodes, 
                                         maxSteps=steps, epsilon=epsilon, 
                                         alpha=alpha, gamma=gamma)
         elif agentType == "MC every visit":
-            #DEBUG
-            print("MCEV AGENT")
             agent = FVAgent(environment=env, episodes=episodes, 
                                         maxSteps=steps, epsilon=epsilon, 
                                         alpha=alpha, gamma=gamma)
         elif agentType == "Q-learning":
-            #DEBUG
-            print("Q-LEARNING AGENT")
             agent = QAgent(environment=env, episodes=episodes, 
                             maxSteps=steps, epsilon=epsilon, 
                             alpha=alpha, gamma=gamma)
@@ -118,14 +157,6 @@ class Window:
         else:
             print("No agent type selected!")
             return 0
-        #DEBUG
-        # print("AGENT WITH PARAMS:")
-        # print("     episodes:",episodes)
-        # print("     steps:",steps)
-        # print("     epsilon:",epsilon)
-        # print("     alpha:",alpha)
-        # print("     gamma:",gamma)
-        # print("     agent type:",agentType)
         print("RUNNING AGENT...")
         rewardsAchieved = agent.run()
         return rewardsAchieved
@@ -137,22 +168,3 @@ def main():
     return None
 
 main()
-
-# env = Environment()
-
-# fig, (ax1, ax2, ax3) = plt.subplots(3)
-# fig.suptitle("Agent score: Random, Q-learning, MC first visit")
-
-# agent = Agent(environment=env, episodes=5000)
-# rewardsAchieved = agent.run()
-# ax1.plot(rewardsAchieved)
-
-# agent = QAgent(environment=env, episodes=5000, epsilon=0.01)
-# rewardsAchieved = agent.run()
-# ax2.plot(rewardsAchieved)
-
-# agent = FirstVisitMCAgent(environment=env, episodes=5000, epsilon=0.01)
-# rewardsAchieved = agent.run()
-# ax3.plot(rewardsAchieved)
-
-# plt.savefig("test_runs/5000_episodes", bbox_inches="tight")
