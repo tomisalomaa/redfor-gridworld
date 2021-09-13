@@ -8,6 +8,7 @@ class Agent:
         self.episodes = episodes
         self.maxSteps = maxSteps
         self.actionSet = self.environment.actionSet
+        self.locationSnapShots = []
     
     def decideAction(self):
         return np.random.choice(self.actionSet)
@@ -19,6 +20,8 @@ class Agent:
             cumulativeReward = 0
             step = 0
             terminate = False
+            episodeStepSnaps = []
+            episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
             while not terminate:
                 oldState = self.environment.agentLocation
                 a = self.decideAction()
@@ -26,10 +29,12 @@ class Agent:
                 deltaState = self.environment.agentLocation
                 cumulativeReward += reward
                 step += 1
+                episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
                 if self.environment.checkState() == "terminal" or step >= self.maxSteps:
                     self.environment.__init__()
                     terminate = True
             rewardLog.append(cumulativeReward)
+            self.locationSnapShots.append(episodeStepSnaps)
             print("Episode", iteration, ":", cumulativeReward)
             iteration += 1
-        return rewardLog
+        return rewardLog, self.locationSnapShots
