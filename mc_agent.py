@@ -15,6 +15,8 @@ class MCAgent:
         self.actionStateVisits = {}
         self.actionStateRewards = {}
 
+        self.locationSnapShots = []
+
         for x in range(self.environment.height):
             for y in range(self.environment.width):
                 self.actionStateValues[(x,y)] = {}
@@ -49,6 +51,8 @@ class MCAgent:
             terminate = False
             cumulativeReward = 0
             episodeSAR = []
+            episodeStepSnaps = []
+            episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
             while not terminate:
                 oldState = self.environment.agentLocation
                 a = self.decideAction()
@@ -56,15 +60,16 @@ class MCAgent:
                 episodeSAR.append((oldState,a,reward))
                 cumulativeReward += reward
                 step += 1
+                episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
                 if self.environment.checkState() == "terminal" or step >= self.maxSteps:
                     self.predictEpisode(episodeSAR)
                     self.environment.__init__()
                     terminate = True
             rewardLog.append(cumulativeReward)
-            if (iteration == 1 or iteration%10 == 0):
-                print("Episode", iteration, ":", cumulativeReward)
+            self.locationSnapShots.append(episodeStepSnaps)
+            print("Episode", iteration, ":", cumulativeReward)
             iteration += 1
-        return rewardLog
+        return rewardLog, self.locationSnapShots
 
 class FirstVisitMCAgent(MCAgent):
     def predictEpisode(self, episodeSAR):

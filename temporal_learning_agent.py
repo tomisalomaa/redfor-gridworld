@@ -11,6 +11,8 @@ class TDAgent:
             self.alpha = alpha
             self.gamma = gamma
 
+            self.locationSnapShots = []
+
             self.Qtable = dict()
 
             # Init Q(s,a) as 0 for each s,a
@@ -50,6 +52,8 @@ class SARSAAgent(TDAgent):
             cumulativeReward = 0
             step = 0
             terminate = False
+            episodeStepSnaps = []
+            episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
             while step < self.maxSteps and not terminate:
                 oldState = self.environment.agentLocation # Get current location
                 a = self.decideAction() # Decide action in current state
@@ -59,13 +63,15 @@ class SARSAAgent(TDAgent):
                 self.updateQ(oldState, a, reward, deltaState, deltaA) 
                 cumulativeReward += reward
                 step += 1
+                episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
                 if self.environment.checkState() == "terminal":
                     self.environment.__init__()
                     terminate = True
             rewardLog.append(cumulativeReward)
+            self.locationSnapShots.append(episodeStepSnaps)
             print("Episode", iteration, ":", cumulativeReward)
             iteration += 1
-        return rewardLog
+        return rewardLog, self.locationSnapShots
 
 class QAgent(TDAgent):
     def updateQtable(self, oldState, reward, deltaState, action):
@@ -76,11 +82,13 @@ class QAgent(TDAgent):
 
     def run(self):
         rewardLog = []
+        episodeStepSnaps = []
         iteration = 1
         for episode in range(self.episodes):
             cumulativeReward = 0
             step = 0
             terminate = False
+            episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
             while step < self.maxSteps and not terminate:
                 oldState = self.environment.agentLocation
                 a = self.decideAction()
@@ -89,10 +97,12 @@ class QAgent(TDAgent):
                 self.updateQtable(oldState, reward, deltaState, a)
                 cumulativeReward += reward
                 step += 1
+                episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
                 if self.environment.checkState() == "terminal":
                     self.environment.__init__()
                     terminate = True
             rewardLog.append(cumulativeReward)
+            self.locationSnapShots.append(episodeStepSnaps)
             print("Episode", iteration, ":", cumulativeReward)
             iteration += 1
-        return rewardLog
+        return rewardLog, self.locationSnapShots
