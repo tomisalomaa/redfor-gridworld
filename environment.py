@@ -6,7 +6,8 @@ class Environment:
         self.height = height
         self.width = width
         self.show = show
-        # init grid with zeros
+        # init grid with -1; each value acts as a statewise reward
+        # (where no special states are specified)
         self.grid = np.full((self.height, self.width),-1,dtype=float)
         # set redfor agent start location
         self.agentLocation = (9, np.random.randint(0,9))
@@ -14,7 +15,7 @@ class Environment:
         self.blueforLocs = (np.random.randint(1,6), np.random.randint(1,6))
         # set the redfor target location
         self.targetAreaLoc = (0,5)
-        # define terminal states
+        # define terminal state
         self.terminalStates = [self.targetAreaLoc]
         # define rewards for special states
         self.grid[self.blueforLocs[0],self.blueforLocs[1]] = -100
@@ -26,7 +27,8 @@ class Environment:
         return self.actionSet
 
     def getAgentandSpecialLoc(self):
-        # This will be for drawing the image later
+        # Return a cleaner version of the environment matrix with
+        # custom values for agent and special states.
         grid = np.zeros((self.height, self.width))
         grid[self.agentLocation[0], self.agentLocation[1]] = 1
         grid[self.blueforLocs[0], self.blueforLocs[1]] = 2
