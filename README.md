@@ -24,12 +24,13 @@ The area of operations (AO) for red force (REDFOR) contains a single target area
 
 REDFOR achieves positive reinforcement based on force ratio and the efficiency of reaching the terminal state which is the target area.
 
-## Current state (13/09/2021)
+## Current state / implemented features from TODO (13/09/2021)
 - Includes a GUI template with agent parameter inputs
 - Agent classes are at core functional and able to be ran
 - Coarse simulation of ran episodes is possible
 
 ## TODO (14/09/2021)
+- separate dev/incomplete branch from master; master should ONLY contain a working version of any given version of this application while dev might be pushed to more freely
 - Implement further mathemathics to all learning algorithms: include alpha and gamma properly; allow for n-step variations for Q-learning and SARSA, implement the possibility of decaying epsilon
 - Implement off-policy features for all learning algorithms
 - Create a class to provide data handling functions
