@@ -2,7 +2,7 @@
 
 ![coarseSimCapabilities](https://user-images.githubusercontent.com/52319409/133126973-ff480521-1f2d-4dfd-b7b6-be5b578f963c.PNG)
 
-Last major update on 13/09/2021: creation of this readme.
+Last update of this readme on 13/09/2021: added features TODO.
 
 ## Description (13/09/2021)
 This application is related to a master's thesis (https://github.com/tomisalomaa/SM_Pro_Gradu). The goal is to run four different classical reinforcement learning agents in a gridworld environment with a problem set specified below. At the same time the application should produce statistics and simulation of the chosen agent's performance and offer the user the means to extract these statistics in order to perform comparative analysis between the learning methods available.
@@ -29,7 +29,9 @@ REDFOR achieves positive reinforcement based on force ratio and the efficiency o
 - Agent classes are at core functional and able to be ran
 - Coarse simulation of ran episodes is possible
 
-## TODO (13/09/2021)
+## TODO (14/09/2021)
+- Implement further mathemathics to all learning algorithms: include alpha and gamma properly; allow for n-step variations for Q-learning and SARSA, implement the possibility of decaying epsilon
+- Implement off-policy features for all learning algorithms
 - Create a class to provide data handling functions
 - Create a class to provide analytics tools
 - Improve GUI to provide the user the means to use above functionalities
