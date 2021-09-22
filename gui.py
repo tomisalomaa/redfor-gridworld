@@ -94,11 +94,6 @@ class Window:
         gridDrawThread = threading.Thread(target=self.drawGridCanvas)
         self.createdThreads.append(gridDrawThread)
         gridDrawThread.start()
-        for thread in self.createdThreads:
-            if not thread.is_alive():
-                print("Closing",thread,"down..")
-                thread.join()
-                # TODO: Do stopped threads need attention (kill, remove?)
 
     # Current notes:
     # Last arr is a no-use array (doesnt contain an actual playthrough but is an end state with no redfor instead),
