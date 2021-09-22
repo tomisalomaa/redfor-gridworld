@@ -51,19 +51,21 @@ class MCAgent:
             terminate = False
             cumulativeReward = 0
             episodeSAR = []
+            # Episode snaps are for agent action simulating purposes only;
+            # allows for rendering of episodes.
             episodeStepSnaps = []
             episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
             while not terminate:
-                oldState = self.environment.agentLocation
-                a = self.decideAction()
-                reward = self.environment.step(a)
-                episodeSAR.append((oldState,a,reward))
-                cumulativeReward += reward
+                oldState = self.environment.agentLocation # Save current state to variable
+                a = self.decideAction() # Decide action; explore or follow policy
+                reward = self.environment.step(a) # Calculate and save reward based on action
+                episodeSAR.append((oldState,a,reward)) # Keep building the S,A,R, ... array
+                cumulativeReward += reward # Add gained reward to episode total reward
                 step += 1
                 episodeStepSnaps.append(self.environment.getAgentandSpecialLoc())
                 if self.environment.checkState() == "terminal" or step >= self.maxSteps:
                     self.predictEpisode(episodeSAR)
-                    self.environment.__init__()
+                    self.environment.__init__() # Re-initialize the environment
                     terminate = True
             rewardLog.append(cumulativeReward)
             self.locationSnapShots.append(episodeStepSnaps)
@@ -73,17 +75,28 @@ class MCAgent:
 
 class FirstVisitMCAgent(MCAgent):
     def predictEpisode(self, episodeSAR):
-        uniqueStateVisits = []
+        uniqueStateVisits = [] # To keep book of first visits ONLY
         for idx, sar in enumerate(episodeSAR):
             if (sar[0],sar[1]) in uniqueStateVisits:
+                # If the state-action pair has already been visited,
+                # discard and continue.
                 continue
             else:
                 g = 0
+                # Iterate through state->action->reward -tuples of the episode
+                # starting from a unique state-action -visit and
+                # calculate the cumulative reward.
                 for i in range(idx, len(episodeSAR)):
                     g += episodeSAR[i][2]
+                # Mark the state-action pair as visited
                 uniqueStateVisits.append((sar[0],sar[1]))
+                # Keep track of how many times the pair has been visited
+                # over all the episodes.
                 self.actionStateVisits[sar[0]][sar[1]] += 1
+                # Keep track of the over all cumulative reward of the pair
+                # over all the episodes.
                 self.actionStateRewards[sar[0]][sar[1]] += g
+                # Calculate value of the state-action -pair.
                 self.actionStateValues[sar[0]][sar[1]] = self.actionStateRewards[sar[0]][sar[1]] / self.actionStateVisits[sar[0]][sar[1]]
 
 class EveryVisitMCAgent(MCAgent):
