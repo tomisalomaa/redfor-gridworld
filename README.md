@@ -4,10 +4,10 @@
 
 Last update of this readme on 13/09/2021: added features TODO.
 
-## Description (13/09/2021)
+## Description
 This application is a personal project motivated by a better understanding of classical reinforcement learning methods. The goal is to implement four different classical reinforcement learning agents in a gridworld environment with a problem set specified below. At the same time the application should produce statistics and simulation of the chosen agent's performance and offer the user the means to extract these statistics in order to perform comparative analysis between the learning methods available.
 
-### Functionalities (13/09/2021)
+### Functionalities
 Supported reinforcement learning agents are:
 - Completely stochastic (ie. completely random choice, probably won't make it into production but acts as a "bottom-line")
 - First-visit Monte Carlo
@@ -17,19 +17,19 @@ Supported reinforcement learning agents are:
 
 Application is Python based.
 
-### Problem environment (13/09/2021)
+### Problem environment
 Goal of this application is to demonstrate whether tactical principles such as mass, manouver and economoy of force are achieved by means of classical reinforcement learning methods. The environment for the problem at hand is in general envisioned as such:
 
 The area of operations (AO) for red force (REDFOR) contains a single target area that is in size relative to the total force of the REDFOR. AO also contains 1-3 units of blue force (BLUFOR) depending on the scenario at hand. The task of REDFOR is to beat BLUFOR from the area - if able to - and reach the target zone.
 
 REDFOR achieves positive reinforcement based on force ratio in engagements and the efficiency of reaching the terminal state which is the target area.
 
-## Current state / implemented features from TODO (13/09/2021)
+## Current state / implemented features from TODO
 - Includes a GUI template with agent parameter inputs
 - Agent classes are at core functional and able to be ran
 - Coarse simulation of ran episodes is possible
 
-## TODO (14/09/2021)
+## TODO
 - Implement further mathemathics to all learning algorithms: include alpha and gamma properly; allow for n-step variations for Q-learning and SARSA, implement the possibility of decaying epsilon
 - Implement off-policy features for all learning algorithms
 - Create a class to provide data handling functions
